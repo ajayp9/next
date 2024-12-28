@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Next Stop Finder</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f4f4;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .output {
+      margin-top: 20px;
+      padding: 10px;
+      background: #e7f3ff;
+      border: 1px solid #b3d7ff;
+      border-radius: 5px;
+    }
+    .output p {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Next Stop Finder</h1>
+    <label for="latitude">Latitude:</label>
+    <input type="number" id="latitude" placeholder="Enter latitude" required>
+    <label for="longitude">Longitude:</label>
+    <input type="number" id="longitude" placeholder="Enter longitude" required>
+    <label for="time">Time (ISO Format):</label>
+    <input type="text" id="time" placeholder="e.g., 2024-12-20T15:00:00Z" required>
+    <button id="findStop">Find Next Stop</button>
+    <div class="output" id="output"></div>
+  </div>
+
+  <script>
+    document.getElementById('findStop').addEventListener('click', () => {
+      const latitude = document.getElementById('latitude').value;
+      const longitude = document.getElementById('longitude').value;
+      const time = document.getElementById('time').value;
+
+      if (!latitude || !longitude || !time) {
+        alert('Please fill in all fields.');
+        return;
+      }
+
+      fetch('https://your-deployment-url.vercel.app/next-stop', { // Replace with your Vercel deployment URL
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          currentLocation: { latitude: parseFloat(latitude), longitude: parseFloat(longitude) },
+          currentTime: time,
+        }),
+      })
+        .then(response => response.json())
+        .then(data => {
+          const output = document.getElementById('output');
+          if (data.error) {
+            output.innerHTML = `<p style="color: red;">Error: ${data.error}</p>`;
+          } else {
+            output.innerHTML = `
+              <p><strong>Next Stop:</strong></p>
+              <p>ID: ${data.nextStop.id}</p>
+              <p>Name: ${data.nextStop.name}</p>
+              <p>Location: (${data.nextStop.location.latitude}, ${data.nextStop.location.longitude})</p>
+            `;
+          }
+        })
+        .catch(err => {
+          console.error('Error:', err);
+          document.getElementById('output').innerHTML = `<p style="color: red;">An error occurred.</p>`;
+        });
+    });
+  </script>
+</body>
+</html>
