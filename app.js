@@ -1,5 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const cors = require('cors');
+app.use(cors()); // Allow all origins (for development, can be more specific later)
 
 const app = express();
 app.use(bodyParser.json());
